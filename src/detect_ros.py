@@ -119,6 +119,9 @@ class Yolov7Publisher:
         self.detection_publisher = rospy.Publisher(
             pub_topic, Detection2DArray, queue_size=queue_size
         )
+        self.detection_subscriber = rospy.Subscriber(
+            pub_topic, Detection2DArray, self.detection_cb
+        )
         rospy.loginfo("YOLOv7 initialization complete. Ready to start inference")
 
     def process_img_msg(self, img_msg: Image):
@@ -154,6 +157,8 @@ class Yolov7Publisher:
         detection_msg = create_detection_msg(img_msg, detections)
         self.detection_publisher.publish(detection_msg)
 
+        # rospy.loginfo("Message '{}' published".format(detection_msg))
+
         # visualizing if required
         if self.visualization_publisher:
             bboxes = [[int(x1), int(y1), int(x2), int(y2)]
@@ -161,8 +166,12 @@ class Yolov7Publisher:
             classes = [int(c) for c in detections[:, 5].tolist()]
             vis_img = draw_detections(np_img_orig, bboxes, classes,
                                       self.class_labels)
-            vis_msg = self.bridge.cv2_to_imgmsg(vis_img)
+            vis_msg = self.bridge.cv2_to_imgmsg(vis_img,"bgr8")
             self.visualization_publisher.publish(vis_msg)
+
+    def detection_cb(self,detection: Detection2DArray):
+        # print("oooooooooooooooo")
+        print("message:",detection.detections[0].bbox)
 
 
 if __name__ == "__main__":

@@ -29,5 +29,4 @@ def draw_detections(img: np.array, bboxes: List[List[int]], classes: List[int],
                 img, label, (x_text, y_text), cv2.FONT_HERSHEY_SIMPLEX,
                 0.5, color, 1, cv2.LINE_AA
             )
-
     return img
